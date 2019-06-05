@@ -10,6 +10,6 @@
 #include "fs.h"
 
 int main(int argc, const char * argv[]) {
-    format("/Users/Jack/Downloads/test.fs",2,2048);
+    int res = format("/Users/Jack/Downloads/my.fs", 2, 2048);
     return 0;
 }
