@@ -7,9 +7,9 @@
 //
 
 #include <stdio.h>
+#include "fs.h"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    printf("Hello, World!\n");
+    format("/Users/Jack/Downloads/test.fs",2,2048);
     return 0;
 }
