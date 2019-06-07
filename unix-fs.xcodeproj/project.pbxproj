@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0478728122AA167700D73B8A /* update.c in Sources */ = {isa = PBXBuildFile; fileRef = 0478728022AA167700D73B8A /* update.c */; };
+		04EE763922A8092B00B65AC6 /* alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 04EE763822A8092B00B65AC6 /* alloc.c */; };
 		04F0878122A67D8F00F7C677 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F0878022A67D8F00F7C677 /* main.c */; };
 		04F0878922A67F8800F7C677 /* fs.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F0878822A67F8700F7C677 /* fs.c */; };
+		04F333C822AA4C28005048E8 /* command.c in Sources */ = {isa = PBXBuildFile; fileRef = 04F333C722AA4C28005048E8 /* command.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,10 +27,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0478727F22AA167700D73B8A /* update.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = update.h; sourceTree = "<group>"; };
+		0478728022AA167700D73B8A /* update.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = update.c; sourceTree = "<group>"; };
+		0488468A22A8C0CF00596326 /* define.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = define.h; sourceTree = "<group>"; };
+		04EE763722A8092B00B65AC6 /* alloc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = alloc.h; sourceTree = "<group>"; };
+		04EE763822A8092B00B65AC6 /* alloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = alloc.c; sourceTree = "<group>"; };
 		04F0877D22A67D8F00F7C677 /* unix-fs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "unix-fs"; sourceTree = BUILT_PRODUCTS_DIR; };
 		04F0878022A67D8F00F7C677 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		04F0878722A67F8700F7C677 /* fs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fs.h; sourceTree = "<group>"; };
 		04F0878822A67F8700F7C677 /* fs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fs.c; sourceTree = "<group>"; tabWidth = 4; };
+		04F333C622AA4C28005048E8 /* command.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = command.h; sourceTree = "<group>"; };
+		04F333C722AA4C28005048E8 /* command.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = command.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +73,13 @@
 				04F0878022A67D8F00F7C677 /* main.c */,
 				04F0878722A67F8700F7C677 /* fs.h */,
 				04F0878822A67F8700F7C677 /* fs.c */,
+				04EE763722A8092B00B65AC6 /* alloc.h */,
+				04EE763822A8092B00B65AC6 /* alloc.c */,
+				0488468A22A8C0CF00596326 /* define.h */,
+				0478727F22AA167700D73B8A /* update.h */,
+				0478728022AA167700D73B8A /* update.c */,
+				04F333C622AA4C28005048E8 /* command.h */,
+				04F333C722AA4C28005048E8 /* command.c */,
 			);
 			path = "unix-fs";
 			sourceTree = "<group>";
@@ -123,6 +140,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0478728122AA167700D73B8A /* update.c in Sources */,
+				04EE763922A8092B00B65AC6 /* alloc.c in Sources */,
+				04F333C822AA4C28005048E8 /* command.c in Sources */,
 				04F0878922A67F8800F7C677 /* fs.c in Sources */,
 				04F0878122A67D8F00F7C677 /* main.c in Sources */,
 			);

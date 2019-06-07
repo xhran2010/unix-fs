@@ -2,36 +2,68 @@
 #define fs_h
 
 #include <stdio.h>
+#include "define.h"
 
-#define INODEPERBLOCK 16
-#define BLOCKSIZE 512
-#define INODESIZE 32
+typedef struct
+{
+    size_t freeBlock[BLOCKNUM];    //the stack of the free block
+    size_t nextFreeBlock;        //the pointer of the next free block in the stack
+    size_t freeBlockNum;            //the totally number of the free block in the disk
+    size_t freeInode[INODENUM];    //the stack of the free node
+    size_t freeInodeNum;            //the totally number of the free inode in the disk
+    size_t nextFreeInode;        //the next free inode in the stack
+} supblock;
 
-typedef struct {
-    size_t num;
-    size_t add[BLOCKSIZE/sizeof(size_t)-1];
-} FreeGroup;
+typedef struct
+{
+    size_t mode;
+    size_t fileSize;
+    size_t fileLink;
+    size_t owner[MAXNAME];
+    size_t group[GROUPNAME];
+    size_t modifyTime;
+    size_t createTime;
+    size_t addr[6];
+    char black[45];// 补位
+} finode;
 
-typedef struct{
-    size_t s_isize;// inode块数
-    size_t s_fsize;// 存储区域的块数
-    size_t s_nfree;// 存储区域空闲块数
-    FreeGroup s_free;// 存储空闲队列
-    size_t s_ninode;// inode空闲个数
-    size_t* s_inode;// inode空闲队列
-} FilSys;
+typedef struct
+{
+    finode finode;
+    struct inode *parent;
+    size_t inodeID;                //the node id
+    size_t userCount;            //the number of process using the inode
+} inode;
 
-typedef struct{
-    size_t inum;// inode 编号
-    char* file_name;// 文件名
-    size_t length;// 文件长度
-    size_t dir_addr[10];// 文件存储的块编号-直接地址
-    size_t indir_addr;// 文件存储的块编号-一次间接地址，存的是索引表所在盘块的编号
-    /* 一个块可存64个盘块号，最多支持(10+64)*512B = 37KB的文件 */
-} INode;
+//direct structure
+typedef struct
+{
+    char directName[DIRECTNAME];
+    size_t inodeID;
+} direct;
+
+//the structure of dir
+typedef struct
+{
+    size_t dirNum;
+    direct direct[DIRNUM];
+} dir;
+
+//the structure of file
+typedef struct
+{
+    inode* fInode;
+    size_t f_curpos;
+} file;
+
+//the structure of user
+typedef struct
+{
+    char userName[MAXNAME];
+    char userPwd[MAXPWD];
+    char userGroup[MAXNAME];
+} user;
 
 /* 新建文件，格式化系统并分区块 */
-int format(const char* path,size_t inode_block_num,size_t size);
-/* 挂载到磁盘 */
-int fs_mount(char drive, const char* path);
+int format(const char* path);
 #endif /* fs_h */
