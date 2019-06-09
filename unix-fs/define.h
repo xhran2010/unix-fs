@@ -17,12 +17,11 @@
 #define DIRNUM 63 // 暂时用不到
 #define BOOTPOS 1024 // 超级块开始位置
 #define SUPERSIZE 1024 // 超级块大小
+#define INODESNUM 7280 // inode总个数
 #define INODESIZE 931840 // inode总大小，7280*128 = 931840
-#define INODENUM 7280
 #define INODE 128 // 每个inode的大小
 #define BLOCKSTART 912 // 存储block开始编号
 #define BLOCKSNUM 7280 // 存储block的个数
 #define BLOCKSIZE 1024 // 每个block的大小
-#define BLOCKSIZE 1024
 
 #endif /* define_h */

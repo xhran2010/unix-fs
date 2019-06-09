@@ -2,16 +2,17 @@
 #include <stdio.h>
 #include "define.h"
 #include "time.h"
+#include "fs.h"
 
 extern FILE* fp;
 extern supblock* super;
-extern inode usedinode[INODENUM];
+extern inode usedinode[INODESNUM];
 
 /* 盘块写内容 */
 int b_write(void * buf,size_t bno,size_t offset,size_t size,int count){
     long int pos;
     size_t ret;
-    pos = bno*BLOCKSIZE+offset;
+    pos = (BLOCKSTART+bno)*BLOCKSIZE+offset;
     fseek(fp,pos,SEEK_SET);
     ret = fwrite(buf,size,count,fp);
     fflush(fp);
@@ -23,7 +24,7 @@ int b_write(void * buf,size_t bno,size_t offset,size_t size,int count){
 int b_read(void * buf,size_t bno,size_t offset,size_t size,int count){
     long int pos;
     int ret;
-    pos = bno*BLOCKSIZE+offset;
+    pos = (BLOCKSTART+bno)*BLOCKSIZE+offset;
     fseek(fp,pos,SEEK_SET);
     ret = fread(buf,size,count,fp);
     if(ret!=count) return -1;
@@ -43,7 +44,7 @@ size_t b_alloc(){
     }
     super->freeBlockNum--;
     super->nextFreeBlock--;
-    update_super(fp, super);
+    update_super();
     return super->freeBlock[super->nextFreeBlock];
 }
 
@@ -59,7 +60,7 @@ int b_free(size_t bno){
         super->nextFreeBlock++;
     }
     super->freeBlockNum++;
-    update_super(fp, super);
+    update_super();
     return 0;
 }
 
@@ -81,7 +82,7 @@ inode* i_alloc(){
     }
     if(super->nextFreeInode==0) return NULL;
     super->nextFreeInode--;
-    update_super(fp, super);
+    update_super();
     return i_get(super->freeInode[super->nextFreeInode]);
 }
 
@@ -94,7 +95,7 @@ inode* i_get(int ino){
         return &usedinode[ino];
     }
     if(fp==NULL) return NULL;
-    ipos=BOOTPOS+SUPERSIZE+ino*INODE;
+    ipos=BOOTPOS+SUPERSIZE+ino*sizeof(finode);
     fseek(fp,ipos,SEEK_SET);
     ret = fread(&usedinode[ino],sizeof(finode),1,fp);
     if(ret != 1) return NULL;
@@ -106,7 +107,8 @@ inode* i_get(int ino){
         time(&timer);
         usedinode[ino].finode.createTime=timer;
         super->freeInodeNum--;
-        update_inode(&usedinode[ino],fp);
+        update_inode(&usedinode[ino]);
+        update_super();
     }
     usedinode[ino].userCount++;
     usedinode[ino].inodeID=ino;

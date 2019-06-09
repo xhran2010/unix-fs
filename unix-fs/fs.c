@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 //内存i节点数组，NUM为该文件系统容纳的文件数
-inode usedinode[INODENUM];
+inode usedinode[INODESNUM];
 //ROOT的内存i节点
 inode *root;
 //当前节点
@@ -39,7 +39,7 @@ int format(const char* path){
     super->nextFreeInode = INODENUM;// 初始化空闲INODE栈指针
     for(size_t i = 0;i < INODENUM;i++) super->freeInode[i] = i;// 初始化空闲INODE栈
     super->freeBlockNum = BLOCKSNUM;
-    super->freeInodeNum = INODENUM;
+    super->freeInodeNum = INODESNUM;
     fwrite(super, sizeof(supblock), 1, fp);
     /* 初始化存储块 */
     fseek(fp,BLOCKSTART*1024,SEEK_SET);
@@ -52,14 +52,37 @@ int format(const char* path){
     }
     /* 初始化INODE块 */
     fseek(fp, BOOTPOS+SUPERSIZE, SEEK_SET);
-    inode* in = (inode*)calloc(1,sizeof(inode));
-    for(size_t i = 0;i < INODENUM;i++) fwrite(in, sizeof(inode), 1, fp);
+    finode* in = (finode*)calloc(1,sizeof(finode));
+    for(size_t i = 0;i < INODENUM;i++){
+        fwrite(in, sizeof(finode), 1, fp);
+        fseek(fp,BOOTPOS+SUPERSIZE+(i+1)*INODE, SEEK_SET);
+    }
+    /* 初始化根INODE结点 */
+    dir* dir_ = (dir*)calloc(1, sizeof(dir));
+    inode * tmpinode=i_alloc();
+    tmpinode->finode.addr[0]=b_alloc();
+    tmpinode->finode.mode=1774;
+    //strcpy(tmpinode->finode.owner,curuser->userName);
+    //strcpy(tmpinode->finode.group,curuser->userGroup);
+    update_inode(tmpinode);
+    dir_->dirNum = 0;
+    b_write(dir_,tmpinode->finode.addr[0],0,sizeof(dir),1);
     fclose(fp);
     return 0;
 }
 
 /* 进入文件系统 */
 int enter(const char* path){
+    /* 将磁盘中的信息读入内存 */
     fp = fopen(path, "r+b");
+    if(fp == NULL) return -1;
+    super=(supblock*)calloc(1,sizeof(supblock));
+    fseek(fp,BOOTPOS,SEEK_SET);
+    fread(super,sizeof(supblock),1,fp);
+    current = i_get(19);
+    fseek(fp,BOOTPOS,SEEK_SET);
+    int res=fwrite(super,sizeof(supblock),1,fp);
+    while(logout_ == 0) shell();
+    fclose(fp);
     return 0;
 }
