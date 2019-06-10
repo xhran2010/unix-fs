@@ -16,9 +16,13 @@
 #include "update.h"
 #include "alloc.h"
 
-int mkdir_(char* name);
+int mkdir_(char* name,int mode);
 int ls(char** files);
 int cd__(void);
 int cd(char* path);
 int pwd(char** path);
+int rm(char* path);
+int append(char* filename,char* content);
+int cat(char* filename);
+int rename_(char* filename,char* newname);
 #endif /* command_h */

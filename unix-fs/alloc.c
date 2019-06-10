@@ -115,3 +115,38 @@ inode* i_get(int ino){
     usedinode[ino].inodeID=ino;
     return &usedinode[ino];
 }
+
+int rm_inode(inode* node){
+    inode* rminode = NULL;
+    dir* dir_=(dir*)calloc(1,sizeof(dir));
+    int count,addrnum,found;
+    count=node->finode.fileSize/sizeof(direct);
+    addrnum = count/63 + (count%63>=1?1:0);
+    addrnum > 4 ? addrnum=4:NULL;
+    for(int addr=0;addr<addrnum;addr++){
+        b_read(dir_,node->finode.addr[addr],0,sizeof(dir),1);
+        for(int i=0;i<dir_->dirNum;i++){
+            rminode = i_get(dir_->direct[i].inodeID);
+            if(rminode->finode.mode/1000 == 1) rm_inode(rminode);// 文件夹，递归删除
+            /* 删除文件 */
+            else{
+                int rmaddr=rminode->finode.fileSize/1024+(rminode->finode.fileSize%1024==0?0:1);
+                if(rminode->finode.fileSize==0) rmaddr=1;
+                for(int i=0;i<rmaddr;i++) b_free(rminode->finode.addr[i]);
+                rminode->finode.fileLink--;
+                rminode->userCount--;
+                update_inode(rminode);
+            }
+        }
+        b_free(node->finode.addr[addr]);
+    }
+    if(addrnum == 0) b_free(node->finode.addr[0]);
+    node->userCount--;
+    node->finode.fileLink--;
+    update_inode(node);
+    if(node->finode.fileLink == 0){
+        super->freeInodeNum ++;
+        update_super();
+    }
+    return 0;
+}

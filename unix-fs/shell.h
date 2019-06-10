@@ -6,4 +6,5 @@
 #include "define.h"
 #include "string.h"
 void shell(void);
+int login_(void);
 #endif /* shell_h */

@@ -2,14 +2,15 @@
 #include "string.h"
 extern FILE* fp;
 extern supblock* super;
+extern user* curuser;
+extern int userpos;
+extern int logout_;
 
 void shell(){
     printf(">");
     char cmd[200];
-    fgets(cmd,sizeof(cmd)/sizeof(char), stdin);
+    scanf("%s",cmd);
     /* 去掉换行符 */
-    char* find = strchr(cmd, '\n');
-    if(find) *find = '\0';
     char* cmd_ele;
     char* cmd_list[5];
     int index = 0;
@@ -19,8 +20,9 @@ void shell(){
         cmd_ele = strtok(NULL, " ");
         index++;
     }// 获取指令
+    if(cmd_list[0] == NULL) return;
     if(strcmp(cmd_list[0], "mkdir") == 0 && index == 2){
-        int res = mkdir_(cmd_list[1]);
+        int res = mkdir_(cmd_list[1],1774);
         if(res == 0) printf("目录创建成功\n");
         else printf("目录创建失败\n");
         return;
@@ -50,5 +52,58 @@ void shell(){
         printf("%s\n",path);
         return;
     }
+    if(strcmp(cmd_list[0], "rm") == 0 && index == 2){
+        int res = rm(cmd_list[1]);
+        return;
+    }
+    if(strcmp(cmd_list[0], "touch") == 0 && index == 2){
+        int res = mkdir_(cmd_list[1],2774);
+        if(res == 0) printf("文件创建成功\n");
+        return;
+    }
+    if(strcmp(cmd_list[0], "append") == 0 && index == 3){
+        int res = append(cmd_list[1], cmd_list[2]);
+        if(res == 0) printf("文件修改成功\n");
+        return;
+    }
+    if(strcmp(cmd_list[0], "cat") == 0 && index == 2){
+        int res = cat(cmd_list[1]);
+        if(res != 0) printf("访问文件出错\n");
+        return;
+    }
+    if(strcmp(cmd_list[0], "rename") == 0 && index == 3){
+        int res = rename_(cmd_list[1], cmd_list[2]);
+        if(res == 0) printf("修改文件名成功\n");
+        return;
+    }
     return;
+}
+
+int login_(){
+    char ch;
+    inode* userinode = i_get(18);
+    int usernum = userinode->finode.fileSize/sizeof(user);
+    user* users=(user*)calloc(usernum,sizeof(user));
+    b_read(users,userinode->finode.addr[0],0,sizeof(user),usernum);
+    char user[MAXNAME]={0},pwd[MAXPWD]={0};
+    printf("请输入账号：");
+    scanf("%s",user);
+    for(int i=0;i<usernum;i++){
+        if(strcmp(users[i].userName,user)==0){
+            printf("请输入密码：");
+            scanf("%s",pwd);
+            if(strcmp(users[i].userPwd,pwd)==0){
+                curuser=&users[i];
+                userpos=i;
+                logout_ = 0;
+                return 0;
+            }
+            else{
+                printf("密码错误\n");
+                return -1;
+            }
+        }
+    }
+    printf("用户不存在\n");
+    return -1;
 }

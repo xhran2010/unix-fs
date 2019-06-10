@@ -16,4 +16,5 @@ int b_free(size_t bno);
 /* 分配INODE */
 inode* i_alloc(void);
 inode* i_get(int ino);
+int rm_inode(inode* i);
 #endif /* alloc_h */

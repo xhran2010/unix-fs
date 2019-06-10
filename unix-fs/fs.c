@@ -23,7 +23,7 @@ inode* userinode;
 
 int userpos;
 
-int logout_ = 0;
+int logout_ = 1;
 
 /* 新建模拟磁盘并分区格式化 */
 int format(const char* path){
@@ -66,6 +66,18 @@ int format(const char* path){
     update_inode(tmpinode);
     dir_->dirNum = 0;
     b_write(dir_,tmpinode->finode.addr[0],0,sizeof(dir),1);
+    /* 初始化用户INODE结点 */
+    inode* usernode = i_alloc();
+    usernode->finode.addr[0] = b_alloc();
+    usernode->finode.mode = 2774;
+    usernode->finode.parent = -1;
+    usernode->finode.fileSize += sizeof(user);
+    update_inode(usernode);
+    user* root = (user*)calloc(1, sizeof(user));
+    strcpy(root->userName,"root");
+    strcpy(root->userPwd,"xinhaoran");
+    strcpy(root->userGroup, "super");
+    b_write(root, usernode->finode.addr[0], 0, sizeof(user), 1);
     fclose(fp);
     return 0;
 }
@@ -75,6 +87,7 @@ int enter(const char* path){
     /* 将磁盘中的信息读入内存 */
     fp = fopen(path, "r+b");
     if(fp == NULL) return -1;
+    while(login_() == -1){}
     super=(supblock*)calloc(1,sizeof(supblock));
     fseek(fp,BOOTPOS,SEEK_SET);
     fread(super,sizeof(supblock),1,fp);
