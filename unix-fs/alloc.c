@@ -94,12 +94,13 @@ inode* i_get(int ino){
         usedinode[ino].userCount++;
         return &usedinode[ino];
     }
+    if(ino == -1) return NULL;
     if(fp==NULL) return NULL;
     ipos=BOOTPOS+SUPERSIZE+ino*sizeof(finode);
     fseek(fp,ipos,SEEK_SET);
     ret = fread(&usedinode[ino],sizeof(finode),1,fp);
     if(ret != 1) return NULL;
-    if(usedinode[ino].finode.fileLink==0){        //it is a new file
+    if(usedinode[ino].finode.fileLink==0){ // 新文件
         usedinode[ino].finode.fileLink++;
         usedinode[ino].finode.fileSize=0;
         usedinode[ino].inodeID=ino;

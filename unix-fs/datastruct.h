@@ -21,13 +21,12 @@ typedef struct
     size_t modifyTime;
     size_t createTime;
     size_t addr[6];
-    char black[45];// 补位
+    int parent;
 } finode;
 
 typedef struct
 {
     finode finode;
-    struct inode *parent;
     size_t inodeID;                //the node id
     size_t userCount;            //the number of process using the inode
 } inode;

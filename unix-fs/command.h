@@ -18,4 +18,7 @@
 
 int mkdir_(char* name);
 int ls(char** files);
+int cd__(void);
+int cd(char* path);
+int pwd(char** path);
 #endif /* command_h */

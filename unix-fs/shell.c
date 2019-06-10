@@ -32,5 +32,23 @@ void shell(){
         printf("\n");
         return;
     }
+    if(strcmp(cmd_list[0], "cd") == 0 && index == 2){
+        if(strcmp(cmd_list[1], "..") == 0 || strcmp(cmd_list[1], "../") == 0){// 返回上级目录
+            int res = cd__();
+            if(res != 0) printf("当前已经是根目录\n");
+            return;
+        }
+        else{
+            int res = cd(cmd_list[1]);
+            if(res != 0) printf("未找到路径\n");
+            return;
+        }
+    }
+    if(strcmp(cmd_list[0], "pwd") == 0 && index == 1){
+        char* path = "";
+        int res = pwd(&path);
+        printf("%s\n",path);
+        return;
+    }
     return;
 }

@@ -15,10 +15,8 @@ supblock *super;
 FILE * fp;
 //当前用户
 user* curuser;
-//当前文件或者目录名字（通过文件，获取名字和文件的inode id）
+//当前文件或者目录名字和对应INODE（通过文件，获取名字和文件的inode id）
 direct curdirect;
-//当前目录
-dir* curdir;
 //退出
 //用户文件节点
 inode* userinode;
@@ -62,6 +60,7 @@ int format(const char* path){
     inode * tmpinode=i_alloc();
     tmpinode->finode.addr[0]=b_alloc();
     tmpinode->finode.mode=1774;
+    tmpinode->finode.parent = -1;
     //strcpy(tmpinode->finode.owner,curuser->userName);
     //strcpy(tmpinode->finode.group,curuser->userGroup);
     update_inode(tmpinode);
@@ -80,6 +79,8 @@ int enter(const char* path){
     fseek(fp,BOOTPOS,SEEK_SET);
     fread(super,sizeof(supblock),1,fp);
     current = i_get(19);
+    root = current;
+    curdirect.inodeID = 19;
     fseek(fp,BOOTPOS,SEEK_SET);
     int res=fwrite(super,sizeof(supblock),1,fp);
     while(logout_ == 0) shell();
