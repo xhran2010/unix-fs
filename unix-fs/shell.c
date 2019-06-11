@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "string.h"
+#include <stdlib.h>
 extern FILE* fp;
 extern supblock* super;
 extern user* curuser;
@@ -9,8 +10,10 @@ extern int logout_;
 void shell(){
     printf(">");
     char cmd[200];
-    scanf("%s",cmd);
+    fgets(cmd,sizeof(cmd)/sizeof(char),stdin);
     /* 去掉换行符 */
+    char* find = strchr(cmd, '\n');
+    if(find) *find = '\0';
     char* cmd_ele;
     char* cmd_list[5];
     int index = 0;
@@ -42,7 +45,7 @@ void shell(){
         }
         else{
             int res = cd(cmd_list[1]);
-            if(res != 0) printf("未找到路径\n");
+            if(res == -3) printf("access denied\n");
             return;
         }
     }
@@ -71,9 +74,19 @@ void shell(){
         if(res != 0) printf("访问文件出错\n");
         return;
     }
-    if(strcmp(cmd_list[0], "rename") == 0 && index == 3){
+    if(strcmp(cmd_list[0], "mv") == 0 && index == 3){
         int res = rename_(cmd_list[1], cmd_list[2]);
         if(res == 0) printf("修改文件名成功\n");
+        return;
+    }
+    if(strcmp(cmd_list[0], "chmod") == 0 && index == 3){
+        int res = chmod_(cmd_list[1], atoi(cmd_list[2]));
+        if(res == 0) printf("权限修改成功\n");
+        else printf("权限修改失败\n");
+        return;
+    }
+    if(strcmp(cmd_list[0], "exit") == 0 && index == 1){
+        logout_ = 1;
         return;
     }
     return;
@@ -96,6 +109,7 @@ int login_(){
                 curuser=&users[i];
                 userpos=i;
                 logout_ = 0;
+                getchar();
                 return 0;
             }
             else{

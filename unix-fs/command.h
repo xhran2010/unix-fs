@@ -25,4 +25,7 @@ int rm(char* path);
 int append(char* filename,char* content);
 int cat(char* filename);
 int rename_(char* filename,char* newname);
+int chmod_(char* filename,int mode);
+int verify(inode* node,int mode);
+
 #endif /* command_h */

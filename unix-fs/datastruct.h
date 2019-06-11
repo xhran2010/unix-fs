@@ -16,8 +16,8 @@ typedef struct
     size_t mode;
     size_t fileSize;
     size_t fileLink;
-    size_t owner[MAXNAME];
-    size_t group[GROUPNAME];
+    char owner[MAXNAME];
+    char group[GROUPNAME];
     size_t modifyTime;
     size_t createTime;
     size_t addr[6];

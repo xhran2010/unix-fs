@@ -7,8 +7,6 @@ inode usedinode[INODESNUM];
 inode *root;
 //当前节点
 inode *current;
-//已经打开文件的数组
-file* opened[];
 //超级块
 supblock *super;
 //模拟磁盘
@@ -17,7 +15,6 @@ FILE * fp;
 user* curuser;
 //当前文件或者目录名字和对应INODE（通过文件，获取名字和文件的inode id）
 direct curdirect;
-//退出
 //用户文件节点
 inode* userinode;
 
@@ -61,8 +58,8 @@ int format(const char* path){
     tmpinode->finode.addr[0]=b_alloc();
     tmpinode->finode.mode=1774;
     tmpinode->finode.parent = -1;
-    //strcpy(tmpinode->finode.owner,curuser->userName);
-    //strcpy(tmpinode->finode.group,curuser->userGroup);
+    strcpy(tmpinode->finode.owner,"root");
+    strcpy(tmpinode->finode.group,"super");
     update_inode(tmpinode);
     dir_->dirNum = 0;
     b_write(dir_,tmpinode->finode.addr[0],0,sizeof(dir),1);
@@ -71,13 +68,19 @@ int format(const char* path){
     usernode->finode.addr[0] = b_alloc();
     usernode->finode.mode = 2774;
     usernode->finode.parent = -1;
-    usernode->finode.fileSize += sizeof(user);
+    usernode->finode.fileSize += 2 * sizeof(user);
     update_inode(usernode);
     user* root = (user*)calloc(1, sizeof(user));
+    // 用户名 root 密码 123456 用户组 super
     strcpy(root->userName,"root");
-    strcpy(root->userPwd,"xinhaoran");
+    strcpy(root->userPwd,"123456");
     strcpy(root->userGroup, "super");
     b_write(root, usernode->finode.addr[0], 0, sizeof(user), 1);
+    // 用户名 xinhaoran 密码 123456 用户组 guest
+    strcpy(root->userName,"xinhaoran");
+    strcpy(root->userPwd,"123456");
+    strcpy(root->userGroup, "guest");
+    b_write(root, usernode->finode.addr[0], sizeof(user), sizeof(user), 1);
     fclose(fp);
     return 0;
 }
