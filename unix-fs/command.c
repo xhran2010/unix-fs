@@ -12,6 +12,7 @@ extern FILE* fp;
 extern direct curdirect;
 extern inode *root;
 extern user* curuser;
+extern supblock *super;
 
 inode* curfile;
 
@@ -339,6 +340,70 @@ int chmod_(char* filename,int mode){
     if(verify(inode_, 1) == -1) return -2;// 权限不足
     inode_->finode.mode = inode_->finode.mode/1000*1000 + mode;
     update_inode(inode_);
+    return 0;
+}
+
+int info(){
+    printf("存储盘块共7280块，剩余：%d块\n",super->freeBlockNum);
+    printf("iNode结点共7280个，剩余：%d个\n",super->freeInodeNum);
+    return 0;
+}
+
+int cp(char* srcfile,char* newfile){
+    int inodeid=0;
+    int count=current->finode.fileSize/sizeof(direct);
+    dir* dir_=(struct dir*)calloc(1,sizeof(dir));
+    int addrnum=count/63+(count%63>=1?1:0);
+    addrnum>4?addrnum=4:NULL;
+    for(int addr=0;addr<addrnum;addr++)
+    {
+        b_read(dir_,current->finode.addr[addr],0,sizeof(dir),1);
+        for(int i=0;i<dir_->dirNum;i++){
+            if(strcmp(dir_->direct[i].directName,srcfile)==0){
+                inodeid=dir_->direct[i].inodeID;
+                count=-1;
+                break;
+            }
+        }
+        if(count==-1) break;
+    }
+    if(inodeid==0) return -1;// 未找到文件
+    inode* srcinode=i_get(inodeid);
+    count=current->finode.fileSize/sizeof(direct);
+    if(count>252) return -2;// 已满
+    addrnum=count/63+(count%63>=1?1:0);
+    addrnum>4?addrnum=4:NULL;
+    for(int addr=0;addr<addrnum;addr++)
+    {
+        b_read(dir_,current->finode.addr[addr],0,sizeof(dir),1);
+        for(int i=0;i<dir_->dirNum;i++)
+            if(strcmp(dir_->direct[i].directName,newfile)==0){
+                return -3;// 文件已存在
+            }
+    }
+    current->finode.fileSize+=sizeof(direct);
+    update_inode(current);
+    int addr=count/63;
+    b_read(dir_,current->finode.addr[addr],0,sizeof(dir),1);
+    strcpy(dir_->direct[dir_->dirNum].directName,newfile);
+    inode* tmpinode=i_alloc();
+    count=srcinode->finode.fileSize/1024;
+    int srcaddr=srcinode->finode.fileSize/1024+(srcinode->finode.fileSize%1024==0?0:1);
+    if(srcinode->finode.fileSize==0) srcaddr=1;
+    for(int i=0;i<srcaddr;i++){
+        tmpinode->finode.addr[i]=b_alloc();
+        char content[1024]={0};
+        b_read(&content,srcinode->finode.addr[i],0,sizeof(char),1024);
+        b_write(&content,tmpinode->finode.addr[i],0,sizeof(char),1024);
+    }
+    tmpinode->finode.fileSize=srcinode->finode.fileSize;
+    tmpinode->finode.mode=srcinode->finode.mode;
+    strcpy(tmpinode->finode.owner,srcinode->finode.owner);
+    strcpy(tmpinode->finode.group,srcinode->finode.group);
+    update_inode(tmpinode);
+    dir_->direct[dir_->dirNum].inodeID=tmpinode->inodeID;
+    dir_->dirNum+=1;
+    b_write(dir_,current->finode.addr[addr],0,sizeof(dir),1);
     return 0;
 }
 

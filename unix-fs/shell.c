@@ -85,6 +85,15 @@ void shell(){
         else printf("权限修改失败\n");
         return;
     }
+    if(strcmp(cmd_list[0], "info") == 0 && index == 1){
+        info();
+        return;
+    }
+    if(strcmp(cmd_list[0], "cp") == 0 && index == 3){
+        int res = cp(cmd_list[1], cmd_list[2]);
+        if(res == 0)printf("拷贝成功\n");
+        return;
+    }
     if(strcmp(cmd_list[0], "exit") == 0 && index == 1){
         logout_ = 1;
         return;
