@@ -97,6 +97,7 @@ int enter(const char* path){
     current = i_get(19);
     root = current;
     curdirect.inodeID = 19;
+    strcpy(curdirect.directName, "/");
     fseek(fp,BOOTPOS,SEEK_SET);
     int res=fwrite(super,sizeof(supblock),1,fp);
     while(logout_ == 0) shell();

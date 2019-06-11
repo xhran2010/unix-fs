@@ -61,10 +61,17 @@ int ls(char** files){
 
 /* 返回上级目录 */
 int cd__(){
-    size_t inodeid=current->inodeID;
     inode* inode=i_get(current->finode.parent);
     if(inode == NULL) return -1; //错误，已经是根目录
     if(verify(inode, 0) == -1) return -3;// 权限不足
+    current = inode;
+    if(current->finode.parent == -1){
+        strcpy(curdirect.directName, "/");
+        curdirect.inodeID = 19;
+        return 0;
+    }
+    inode = i_get(current->finode.parent);
+    size_t inodeid=current->inodeID;
     size_t count=inode->finode.fileSize/sizeof(direct);
     dir * dir_=(struct dir*)calloc(1,sizeof(dir));
     size_t addrnum=count/63+(count%63>=1?1:0);
@@ -73,8 +80,7 @@ int cd__(){
         b_read(dir_,inode->finode.addr[addr],0,sizeof(dir),1);
         for(int i=0;i<dir_->dirNum;i++){
             if(dir_->direct[i].inodeID==inodeid){
-                curdirect=dir_->direct[i];
-                current = inode;
+                curdirect = dir_->direct[i];
                 return 0;
             }
         }
