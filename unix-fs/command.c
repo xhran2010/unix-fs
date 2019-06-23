@@ -50,7 +50,7 @@ int ls(char** files){
     if(current->finode.mode/1000!=1) return -1;// 不是文件夹
     size_t count = current->finode.fileSize/sizeof(direct);
     dir * dir_ = (dir*)calloc(1,sizeof(dir));
-    int addrnum=count/63+(count%63>=1?1:0);
+    int addrnum = count/63+(count%63>=1?1:0);
     addrnum > 4 ? addrnum = 4:NULL;
     for(int addr=0;addr<addrnum;addr++){
         b_read(dir_,current->finode.addr[addr],0,sizeof(dir),1);
@@ -252,7 +252,7 @@ int append(char* filename,char* content){
     int addr=fileSize/1024;
     int offset=fileSize%1024;
     int charCount=strlen(content)-index;
-    int writeCount=(charCount>1024?1024-offset:charCount);
+    int writeCount=(charCount + offset>1024?1024-offset:charCount);
     b_write(&content[index],inode_->finode.addr[addr],offset,sizeof(char),writeCount);
     index += writeCount;
     inode_->finode.fileSize += writeCount;
@@ -260,9 +260,10 @@ int append(char* filename,char* content){
         inode_->finode.addr[++addr] = b_alloc();
         offset=inode_->finode.fileSize % 1024;
         charCount = strlen(content)-index;
-        writeCount=(charCount>1024?1024-offset:charCount);
+        writeCount=(charCount + offset>1024?1024-offset:charCount);
         b_write(&content[index],inode_->finode.addr[addr],offset,sizeof(char),writeCount);
         inode_->finode.fileSize+=writeCount;
+        index += writeCount;
     }
     update_inode(inode_);
     return 0;
@@ -410,6 +411,21 @@ int cp(char* srcfile,char* newfile){
     dir_->direct[dir_->dirNum].inodeID=tmpinode->inodeID;
     dir_->dirNum+=1;
     b_write(dir_,current->finode.addr[addr],0,sizeof(dir),1);
+    return 0;
+}
+
+int useradd(char* username,char* password,char* group){
+    if(strcmp(curuser->userName, "root") != 0) return -1;// 非root不可以创建用户
+    inode* usernode = i_get(18);
+    user* root = (user*)calloc(1, sizeof(user));
+    size_t offset = usernode->finode.fileSize;
+    // 用户名 root 密码 123456 用户组 super
+    strcpy(root->userName,username);
+    strcpy(root->userPwd,password);
+    strcpy(root->userGroup, group);
+    b_write(root, usernode->finode.addr[0], offset, sizeof(user), 1);
+    usernode->finode.fileSize += sizeof(user);
+    update_inode(usernode);
     return 0;
 }
 

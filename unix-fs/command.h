@@ -28,6 +28,7 @@ int rename_(char* filename,char* newname);
 int chmod_(char* filename,int mode);
 int cp(char* srcfile,char* newfile);
 int verify(inode* node,int mode);
+int useradd(char* username,char* password,char* group);
 int info(void);
 
 #endif /* command_h */

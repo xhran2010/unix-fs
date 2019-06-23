@@ -37,8 +37,7 @@ void shell(){
     if(strcmp(cmd_list[0], "ls") == 0 && index == 1){
         char* files[DIRNUM];
         int res = ls(files);
-        if(res > 0) for(int i = 0;i<res;i++) printf("%s  ",files[i]);
-        else printf("当前文件不是目录");
+        for(int i = 0;i<res;i++) printf("%s  ",files[i]);
         printf("\n");
         return;
     }
@@ -118,6 +117,11 @@ void shell(){
         if(res == -2) printf("当前文件夹已满\n");
         if(res == -3) printf("文件已存在\n");
         return;
+    }
+    if(strcmp(cmd_list[0], "useradd") == 0 && index == 4){
+        int res = useradd(cmd_list[1], cmd_list[2], cmd_list[3]);
+        if(res == -1) printf("permission denied\n");
+        else printf("用户创建成功\n");
     }
     if(strcmp(cmd_list[0], "exit") == 0 && index == 1){
         logout_ = 1;

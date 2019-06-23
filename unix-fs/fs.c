@@ -68,7 +68,7 @@ int format(const char* path){
     usernode->finode.addr[0] = b_alloc();
     usernode->finode.mode = 2774;
     usernode->finode.parent = -1;
-    usernode->finode.fileSize += 2 * sizeof(user);
+    usernode->finode.fileSize = sizeof(user);
     update_inode(usernode);
     user* root = (user*)calloc(1, sizeof(user));
     // 用户名 root 密码 123456 用户组 super
@@ -76,11 +76,6 @@ int format(const char* path){
     strcpy(root->userPwd,"123456");
     strcpy(root->userGroup, "super");
     b_write(root, usernode->finode.addr[0], 0, sizeof(user), 1);
-    // 用户名 xinhaoran 密码 123456 用户组 guest
-    strcpy(root->userName,"xinhaoran");
-    strcpy(root->userPwd,"123456");
-    strcpy(root->userGroup, "guest");
-    b_write(root, usernode->finode.addr[0], sizeof(user), sizeof(user), 1);
     fclose(fp);
     return 0;
 }
@@ -99,7 +94,7 @@ int enter(const char* path){
     curdirect.inodeID = 19;
     strcpy(curdirect.directName, "/");
     fseek(fp,BOOTPOS,SEEK_SET);
-    int res=fwrite(super,sizeof(supblock),1,fp);
+    int res = fwrite(super,sizeof(supblock),1,fp);
     while(logout_ == 0) shell();
     fclose(fp);
     return 0;
