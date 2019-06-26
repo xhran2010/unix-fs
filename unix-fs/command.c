@@ -105,52 +105,54 @@ int cd(char* path){
         dir_ele = strtok(NULL, "/");
         index++;
     }// 获取目录
-    if(path[0] == '.' || path[0] == '/'){
-        inode* inode_searcher;
-        direct direct_searcher;
-        int i;
-        if(strcmp(dir_list[0], ".") == 0) {
-            inode_searcher = current;
-            i = 1;
-        }
-        // 从当前目录开始寻址
-        else {
-            inode_searcher = root;
-            i = 0;
-        }// 从根目录开始寻址
-        for(;i < index;i++){
-            if(verify(inode_searcher, 0) == -1) return -3;// 权限不足
-            size_t count=inode_searcher->finode.fileSize/sizeof(direct);
-            int addrnum=count/63+(count%63>=1?1:0);
-            dir * dir_=(dir*)calloc(1,sizeof(dir));
-            addrnum > 4 ? addrnum = 4:NULL;
-            int has_found = 0;
-            for(int addr = 0;addr < addrnum;addr ++){
-                b_read(dir_, inode_searcher->finode.addr[addr], 0, sizeof(dir), 1);
-                for(int d = 0;d < dir_->dirNum;d++){
-                    if(strcmp(dir_->direct[d].directName,dir_list[i])==0){
-                        direct_searcher = dir_->direct[d];
-                        inode_searcher = i_get(dir_->direct[d].inodeID);
-                        has_found = 1;
-                        break;
-                    }
-                }
-                if(has_found == 1) break;
-                else return -1;// 没找到
-            }
-            if(has_found == 0) return -1;// 没找到
-        }
-        if(verify(inode_searcher, 0) == -1) return -3;// 权限不足
-        if(inode_searcher->finode.mode/1000 == 1){// 是目录
-            current = inode_searcher;
-            curdirect = direct_searcher;
-            return 0;
-        }
-        else {
-            curfile = inode_searcher;
-            return -2;
-        }// 不是目录
+    inode* inode_searcher;
+    direct direct_searcher;
+    int i;
+    if(strcmp(dir_list[0], ".") == 0) {
+        inode_searcher = current;
+        i = 1;
     }
+    // 从当前目录开始寻址
+    else if(path[0] == '/'){
+        inode_searcher = root;
+        i = 0;
+    }// 从根目录开始寻址
+    else{
+        inode_searcher = current;
+        i = 0;
+    }
+    for(;i < index;i++){
+        if(verify(inode_searcher, 0) == -1) return -3;// 权限不足
+        size_t count=inode_searcher->finode.fileSize/sizeof(direct);
+        int addrnum=count/63+(count%63>=1?1:0);
+        dir * dir_=(dir*)calloc(1,sizeof(dir));
+        addrnum > 4 ? addrnum = 4:NULL;
+        int has_found = 0;
+        for(int addr = 0;addr < addrnum;addr ++){
+            b_read(dir_, inode_searcher->finode.addr[addr], 0, sizeof(dir), 1);
+            for(int d = 0;d < dir_->dirNum;d++){
+                if(strcmp(dir_->direct[d].directName,dir_list[i])==0){
+                    direct_searcher = dir_->direct[d];
+                    inode_searcher = i_get(dir_->direct[d].inodeID);
+                    has_found = 1;
+                    break;
+                }
+            }
+            if(has_found == 1) break;
+            else return -1;// 没找到
+        }
+        if(has_found == 0) return -1;// 没找到
+    }
+    if(verify(inode_searcher, 0) == -1) return -3;// 权限不足
+    if(inode_searcher->finode.mode/1000 == 1){// 是目录
+        current = inode_searcher;
+        curdirect = direct_searcher;
+        return 0;
+    }
+    else {
+        curfile = inode_searcher;
+        return -2;
+    }// 不是目录
     return -4;
 }
 

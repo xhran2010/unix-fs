@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include "fs.h"
-#include "alloc.h"
 #include "string.h"
+#include "shell.h"
 
 int main(int argc, const char * argv[]) {
     int arg_count = argc - 1;
@@ -27,8 +26,11 @@ int main(int argc, const char * argv[]) {
             printf("参数错误，请重试\n");
             return 0;
         }
-        int res = enter(args[1]);
+        int res = init(args[1]);
         if(res == -1) printf("进入失败，请检查文件是否有效或损坏\n");
+        while(login_() == -1){}
+        while(shell() == 0){}
+        exit_();
         return 0;
     }
     return 0;

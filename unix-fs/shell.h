@@ -5,6 +5,6 @@
 #include "command.h"
 #include "define.h"
 #include "string.h"
-void shell(void);
+int shell(void);
 int login_(void);
 #endif /* shell_h */

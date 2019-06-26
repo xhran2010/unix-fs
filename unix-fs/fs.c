@@ -80,12 +80,12 @@ int format(const char* path){
     return 0;
 }
 
-/* 进入文件系统 */
-int enter(const char* path){
+/* 初始化文件系统 */
+int init(const char* path){
     /* 将磁盘中的信息读入内存 */
     fp = fopen(path, "r+b");
     if(fp == NULL) return -1;
-    while(login_() == -1){}
+    //while(login_() == -1){}
     super=(supblock*)calloc(1,sizeof(supblock));
     fseek(fp,BOOTPOS,SEEK_SET);
     fread(super,sizeof(supblock),1,fp);
@@ -95,7 +95,10 @@ int enter(const char* path){
     strcpy(curdirect.directName, "/");
     fseek(fp,BOOTPOS,SEEK_SET);
     int res = fwrite(super,sizeof(supblock),1,fp);
-    while(logout_ == 0) shell();
+    return 0;
+}
+
+int exit_(){
     fclose(fp);
     return 0;
 }

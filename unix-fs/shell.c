@@ -8,9 +8,10 @@ extern int userpos;
 extern int logout_;
 extern direct curdirect;
 
-void shell(){
-    printf("[%s@localhost %s]#",curuser->userName,curdirect.directName);
-    char cmd[200];
+int shell(){
+    char prefix_sign = strcmp(curuser->userName, "root") == 0?'#':'$';
+    printf("[%s@localhost %s]%c ",curuser->userName,curdirect.directName,prefix_sign);
+    char cmd[600];
     fgets(cmd,sizeof(cmd)/sizeof(char),stdin);
     /* 去掉换行符 */
     char* find = strchr(cmd, '\n');
@@ -24,7 +25,7 @@ void shell(){
         cmd_ele = strtok(NULL, " ");
         index++;
     }// 获取指令
-    if(cmd_list[0] == NULL) return;
+    if(cmd_list[0] == NULL) return 0;
     if(strcmp(cmd_list[0], "mkdir") == 0 && index == 2){
         int res = mkdir_(cmd_list[1],1774);
         if(res == 0) printf("目录创建成功\n");
@@ -32,43 +33,43 @@ void shell(){
         if(res == -2) printf("当前文件夹已满\n");
         if(res == -1) printf("当前文件不是目录\n");
         if(res == -3) printf("目录已存在\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "ls") == 0 && index == 1){
         char* files[DIRNUM];
         int res = ls(files);
         for(int i = 0;i<res;i++) printf("%s  ",files[i]);
         printf("\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "cd") == 0 && index == 2){
         if(strcmp(cmd_list[1], "..") == 0 || strcmp(cmd_list[1], "../") == 0){// 返回上级目录
             int res = cd__();
             if(res == -1) printf("当前已经是根目录\n");
             if(res == -3) printf("access denied\n");
-            if(res == -2) printf("目录切换失败");
-            return;
+            if(res == -2) printf("目录切换失败\n");
+            return 0;
         }
         else{
             int res = cd(cmd_list[1]);
             if(res == -3) printf("access denied\n");
             if(res == -1) printf("未找到该路径\n");
             if(res == -2) printf("该路径不是一个目录\n");
-            return;
+            return 0;
         }
     }
     if(strcmp(cmd_list[0], "pwd") == 0 && index == 1){
         char* path = "";
         int res = pwd(&path);
         printf("%s\n",path);
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "rm") == 0 && index == 2){
         int res = rm(cmd_list[1]);
         if(res == 0) printf("删除成功\n");
         if(res == -1) printf("根目录不能删除\n");
         if(res == -2) printf("access denied\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "touch") == 0 && index == 2){
         int res = mkdir_(cmd_list[1],2774);
@@ -77,38 +78,38 @@ void shell(){
         if(res == -2) printf("当前文件夹已满\n");
         if(res == -1) printf("当前文件不是目录\n");
         if(res == -3) printf("文件已存在\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "append") == 0 && index == 3){
         int res = append(cmd_list[1], cmd_list[2]);
         if(res == 0) printf("文件修改成功\n");
         if(res == -1) printf("找不到文件\n");
         if(res == -2) printf("access denied\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "cat") == 0 && index == 2){
         int res = cat(cmd_list[1]);
         if(res == -1) printf("找不到文件\n");
         if(res == -2) printf("access denied\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "mv") == 0 && index == 3){
         int res = rename_(cmd_list[1], cmd_list[2]);
         if(res == 0) printf("修改文件名成功\n");
         if(res == -1) printf("找不到文件\n");
         if(res == -2) printf("access denied\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "chmod") == 0 && index == 3){
         int res = chmod_(cmd_list[1], atoi(cmd_list[2]));
         if(res == 0) printf("权限修改成功\n");
         if(res == -1) printf("找不到文件\n");
         if(res == -2) printf("access denied\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "info") == 0 && index == 1){
         info();
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "cp") == 0 && index == 3){
         int res = cp(cmd_list[1], cmd_list[2]);
@@ -116,7 +117,7 @@ void shell(){
         if(res == -1) printf("找不到文件\n");
         if(res == -2) printf("当前文件夹已满\n");
         if(res == -3) printf("文件已存在\n");
-        return;
+        return 0;
     }
     if(strcmp(cmd_list[0], "useradd") == 0 && index == 4){
         int res = useradd(cmd_list[1], cmd_list[2], cmd_list[3]);
@@ -124,10 +125,9 @@ void shell(){
         else printf("用户创建成功\n");
     }
     if(strcmp(cmd_list[0], "exit") == 0 && index == 1){
-        logout_ = 1;
-        return;
+        return -1;
     }
-    return;
+    return 0;
 }
 
 int login_(){
