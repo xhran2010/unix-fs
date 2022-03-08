@@ -1,6 +1,4 @@
 # unix-fs
-## 简介
-该项目为我的操作系统课程设计，实现一个UNIX文件系统。
 ## 实现功能
 * 用文件模拟磁盘
 * UNIX文件系统，引入索引结点、成组链接法机制
@@ -36,5 +34,3 @@ unix-fs enter <virtual_disk_path>
 * 默认root用户，账号：root 密码：123456
 * 根INODE结点的INODEID为19，存储用户信息的INODEID为18
 * cat/append/cp/chmod命令暂时只支持操作当前目录下的文件（夹），即参数不支持路径寻址
-## 注意事项
-编码不易，仅供参考，请勿抄袭！
